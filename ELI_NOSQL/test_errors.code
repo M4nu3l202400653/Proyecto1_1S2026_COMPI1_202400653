@@ -1,0 +1,79 @@
+## Este es un comentario de una línea válido
+database universidad {
+    store at "universidad.json";
+}
+table estudiantes {
+    id : int;
+    nombre : string;
+    edad : int;
+}
+add estudiantes {
+    id: 1,
+    nombre: "Luis",
+    edad: 22@
+};
+read estudiantes {
+    fields: nombre, edad;
+    filter: edad > 20;
+}
+## Error léxico: uso del símbolo "#"
+add estudiantes { ######
+    id: 2,
+    nombre: "Ana",
+    edad: 23  # # # # #
+};
+## Error léxico: uso del símbolo "$"
+read estudiantes {
+    fields: nombre, edad, $salario;
+    filter: edad > 20 && nombre == "Luis";  $ $ $ $
+}
+## Error léxico: uso del símbolo "%"
+table profesores {
+    id : int;
+    nombre : string;
+    salario : float;
+    departamento : string; % % %
+}
+## Error léxico: uso del símbolo "&"
+add profesores {
+    id: 1, &
+    nombre: "Carlos",
+    salario: 1500.50,
+    departamento: "Matemáticas"
+}; & & &
+update estudiantes {
+    set: edad = 23, nombre = "Luis Pérez"
+    filter: id == 1;
+}
+## Error léxico: uso del símbolo "^"
+clear estudiantes; ^^^^
+## Definición correcta de base de datos y tabla con operadores
+database hospital {
+    store at "hospital.json";
+}
+table pacientes {
+    id : int;
+    nombre : string;
+    enfermedad : string;
+    edad : int;
+}
+add pacientes {
+    id: 1,
+    nombre: "Juan",
+    enfermedad: "Gripe",
+    edad: 45
+};
+## Error léxico: uso del símbolo "~"
+read ~ pacientes {
+    fields: nombre, enfermedad, edad;
+    filter: edad > 40;
+};
+~ ~~~~~
+export "pacientes_mayores.json";
+add pacientes {
+    id: 2,
+    nombre: "Pedro",
+    enfermedad: "Neumonía",
+    edad: 38
+   ~ ## Error léxico por uso del símbolo "~"
+};

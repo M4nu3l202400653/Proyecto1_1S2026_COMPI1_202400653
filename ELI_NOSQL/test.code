@@ -1,0 +1,23 @@
+database tiendaDB {}
+
+use tiendaDB;
+
+table productos {
+    id: int;
+    nombre: string;
+    precio: float;
+}
+
+add productos { id: 1, nombre: "Manzana", precio: 2.5 };
+add productos { id: 2, nombre: "Pera", precio: 1.8 };
+add productos { id: 3, nombre: "Naranja", precio: 3.0 };
+
+read productos { fields: *; };
+
+read productos { fields: id, nombre; filter: precio >= 2.0; };
+
+update productos { set: precio = 4.0; filter: id == 3; };
+
+clear productos;
+
+read productos { fields: *; };

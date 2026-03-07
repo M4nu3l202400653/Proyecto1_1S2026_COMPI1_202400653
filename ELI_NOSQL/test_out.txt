@@ -1,0 +1,29 @@
+=== TOKENS (126) ===
+=== ERRORES LEXICOS: 0 ===
+=== ERRORES SINTACTICOS: 0 ===
+=== ERRORES EJECUCION: 0 ===
+=== CONSOLA ===
+Base de datos 'tiendaDB' creada.
+Usando base de datos: tiendaDB
+Tabla 'productos' creada en 'tiendaDB'.
+Registro insertado en 'productos'.
+Registro insertado en 'productos'.
+Registro insertado en 'productos'.
+| id | nombre  | precio |
+|----|---------|--------|
+| 1  | Manzana | 2.5    |
+| 2  | Pera    | 1.8    |
+| 3  | Naranja | 3.0    |
+
+| id | nombre  |
+|----|---------|
+| 1  | Manzana |
+| 3  | Naranja |
+
+1 registro(s) actualizado(s) en 'productos'.
+3 registro(s) eliminado(s) de 'productos'.
+| id | nombre | precio |
+|----|--------|--------|
+(sin resultados)
+
+

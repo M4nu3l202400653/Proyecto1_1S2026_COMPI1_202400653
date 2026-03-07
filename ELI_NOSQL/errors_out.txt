@@ -1,0 +1,42 @@
+instead expected token classes are []
+instead expected token classes are [PTCOMA]
+instead expected token classes are [PTCOMA, COMA]
+=== TOKENS (246) ===
+=== ERRORES LEXICOS: 30 ===
+  LEX ERROR: El carácter "@" no pertenece al lenguaje L13:C13
+  LEX ERROR: El carácter "#" no pertenece al lenguaje L23:C15
+  LEX ERROR: El carácter "#" no pertenece al lenguaje L23:C17
+  LEX ERROR: El carácter "#" no pertenece al lenguaje L23:C19
+  LEX ERROR: El carácter "#" no pertenece al lenguaje L23:C21
+  LEX ERROR: El carácter "#" no pertenece al lenguaje L23:C23
+  LEX ERROR: El carácter "$" no pertenece al lenguaje L27:C27
+  LEX ERROR: El carácter "$" no pertenece al lenguaje L28:C45
+  LEX ERROR: El carácter "$" no pertenece al lenguaje L28:C47
+  LEX ERROR: El carácter "$" no pertenece al lenguaje L28:C49
+  LEX ERROR: El carácter "$" no pertenece al lenguaje L28:C51
+  LEX ERROR: El carácter "%" no pertenece al lenguaje L35:C28
+  LEX ERROR: El carácter "%" no pertenece al lenguaje L35:C30
+  LEX ERROR: El carácter "%" no pertenece al lenguaje L35:C32
+  LEX ERROR: El carácter "&" no pertenece al lenguaje L39:C12
+  LEX ERROR: El carácter "&" no pertenece al lenguaje L43:C4
+  LEX ERROR: El carácter "&" no pertenece al lenguaje L43:C6
+  LEX ERROR: El carácter "&" no pertenece al lenguaje L43:C8
+  LEX ERROR: El carácter "^" no pertenece al lenguaje L49:C20
+  LEX ERROR: El carácter "^" no pertenece al lenguaje L49:C21
+  LEX ERROR: El carácter "^" no pertenece al lenguaje L49:C22
+  LEX ERROR: El carácter "^" no pertenece al lenguaje L49:C23
+  LEX ERROR: El carácter "~" no pertenece al lenguaje L67:C6
+  LEX ERROR: El carácter "~" no pertenece al lenguaje L71:C1
+  LEX ERROR: El carácter "~" no pertenece al lenguaje L71:C3
+  LEX ERROR: El carácter "~" no pertenece al lenguaje L71:C4
+  LEX ERROR: El carácter "~" no pertenece al lenguaje L71:C5
+  LEX ERROR: El carácter "~" no pertenece al lenguaje L71:C6
+  LEX ERROR: El carácter "~" no pertenece al lenguaje L71:C7
+  LEX ERROR: El carácter "~" no pertenece al lenguaje L78:C4
+=== ERRORES SINTACTICOS: 3 ===
+  SYN ERROR: Syntax error L20:C1
+  SYN ERROR: Syntax error L31:C1
+  SYN ERROR: Syntax error L46:C5
+=== ERRORES EJECUCION: 0 ===
+=== CONSOLA ===
+

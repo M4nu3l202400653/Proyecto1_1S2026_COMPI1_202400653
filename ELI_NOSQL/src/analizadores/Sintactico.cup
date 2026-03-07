@@ -1,0 +1,448 @@
+/* ------------- ELI NOSQL - Parser (CUP) -------------
+   Gramática con acciones semánticas completas.
+------------------------------------------------------ */
+
+package analizadores;
+
+import java_cup.runtime.Symbol;
+import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import analizadores.ast.Instruccion;
+import analizadores.instrucciones.*;
+import analizadores.expresiones.*;
+
+parser code {:
+    public static final java.util.ArrayList<analizadores.errores.ErrorSintactico> ERRORES =
+        new java.util.ArrayList<>();
+
+    public void report_error(String message, Object info) {
+        int linea = 0, col = 0;
+        if (info instanceof Symbol s) {
+            linea = s.left;
+            col   = s.right;
+        }
+        ERRORES.add(new analizadores.errores.ErrorSintactico(
+            "Sintáctico", message, linea, col));
+    }
+
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+    }
+:};
+
+action code {:
+    // helpers vacíos
+:};
+
+/* ================= TERMINALES ================= */
+terminal DATABASE, USE, TABLE, READ, FIELDS, FILTER, STORE, AT, EXPORT, ADD, UPDATE, SET, CLEAR, SAVE;
+
+terminal T_INT, T_FLOAT, T_BOOL, T_STRING, T_ARRAY, T_OBJECT;
+
+terminal LLAVEIZQ, LLAVEDER, PARIZQ, PARDER, CORIZQ, CORDER;
+terminal DOSP, PTCOMA, COMA, IGUAL, ASTERISCO;
+
+terminal IGUAL_IGUAL, DIFERENTE, MAYOR_IGUAL, MENOR_IGUAL, MAYOR, MENOR;
+terminal AND, OR, NOT;
+
+terminal Integer ENTERO;
+terminal Double  DECIMAL;
+terminal Boolean BOOL;
+terminal String  CADENA;
+terminal String  ID;
+terminal NULL;
+
+/* ================= NO TERMINALES (tipados) ================= */
+non terminal LinkedList   programa;
+non terminal LinkedList   lista_sent;
+non terminal Instruccion  sent;
+
+non terminal Instruccion  db_stmt;
+non terminal Instruccion  use_stmt;
+non terminal Instruccion  table_stmt;
+non terminal Instruccion  read_stmt;
+non terminal Instruccion  add_stmt;
+non terminal Instruccion  update_stmt;
+non terminal Instruccion  clear_stmt;
+non terminal Instruccion  export_stmt;
+
+non terminal String       store_stmt_opt;
+non terminal String       store_stmt;
+
+non terminal Object[]     campos_stmt;
+non terminal Object       filter_stmt_opt;
+non terminal Expresion    filter_stmt;
+
+non terminal LinkedHashMap lista_decls;
+non terminal Object[]      decl;
+non terminal String        tipo;
+
+non terminal LinkedHashMap pares_opt;
+non terminal LinkedHashMap pares;
+non terminal Object[]      par;
+non terminal Object        valor;
+non terminal List          array_val;
+non terminal List          lista_valores_opt;
+non terminal List          lista_valores;
+non terminal LinkedHashMap object_val;
+non terminal LinkedHashMap lista_props_opt;
+non terminal LinkedHashMap lista_props;
+non terminal Object[]      prop;
+
+non terminal LinkedHashMap set_stmt;
+non terminal LinkedHashMap lista_asigs;
+non terminal Object[]      asig;
+
+non terminal Expresion     expr;
+non terminal Expresion     expr_or;
+non terminal Expresion     expr_and;
+non terminal Expresion     expr_not;
+non terminal Expresion     expr_rel;
+non terminal String        relop;
+non terminal Expresion     prim;
+
+non terminal List          lista_campos_ids;
+non terminal String        campo_item;
+
+/* ================= PRECEDENCIA (según PDF) ================= */
+precedence left OR;
+precedence left AND;
+precedence right NOT;
+precedence left IGUAL_IGUAL, DIFERENTE, MAYOR, MENOR, MAYOR_IGUAL, MENOR_IGUAL;
+
+/* ================= INICIO ================= */
+start with programa;
+
+/* ================= GRAMÁTICA ================= */
+
+programa ::= lista_sent:ls
+    {: RESULT = ls; :}
+    ;
+
+lista_sent ::= lista_sent:ls sent:s
+    {:
+        if (s != null) ls.add(s);
+        RESULT = ls;
+    :}
+    | lista_sent:ls error PTCOMA
+    {:
+        RESULT = ls;
+    :}
+    | lista_sent:ls error LLAVEDER
+    {:
+        RESULT = ls;
+    :}
+    | /* empty */
+    {: RESULT = new LinkedList(); :}
+    ;
+
+sent ::= db_stmt:s      {: RESULT = s; :}
+       | use_stmt:s     {: RESULT = s; :}
+       | table_stmt:s   {: RESULT = s; :}
+       | read_stmt:s    {: RESULT = s; :}
+       | add_stmt:s     {: RESULT = s; :}
+       | update_stmt:s  {: RESULT = s; :}
+       | clear_stmt:s   {: RESULT = s; :}
+       | export_stmt:s  {: RESULT = s; :}
+       | save_stmt:s    {: RESULT = s; :}
+       ;
+
+/* ---- database ---- */
+db_stmt ::= DATABASE:d ID:name LLAVEIZQ store_stmt_opt:ruta LLAVEDER
+    {:
+        RESULT = new analizadores.instrucciones.Database(
+            (String)name, (String)ruta, dleft, dright);
+    :}
+    ;
+
+store_stmt_opt ::= store_stmt:s  {: RESULT = s; :}
+                 | /* empty */   {: RESULT = null; :}
+                 ;
+
+store_stmt ::= STORE AT CADENA:path PTCOMA
+    {: RESULT = (String)path; :}
+    ;
+
+/* ---- use ---- */
+use_stmt ::= USE:u ID:name PTCOMA
+    {:
+        RESULT = new analizadores.instrucciones.UseDatabase(
+            (String)name, uleft, uright);
+    :}
+    ;
+
+/* ---- table ---- */
+table_stmt ::= TABLE:t ID:name LLAVEIZQ lista_decls:decls LLAVEDER
+    {:
+        RESULT = new analizadores.instrucciones.CreateTable(
+            (String)name,
+            (LinkedHashMap)decls,
+            tleft, tright);
+    :}
+    ;
+
+lista_decls ::= lista_decls:ld decl:d
+    {:
+        ld.put(((String[])d)[0], ((String[])d)[1]);
+        RESULT = ld;
+    :}
+    | /* empty */
+    {: RESULT = new LinkedHashMap(); :}
+    ;
+
+decl ::= ID:name DOSP tipo:t PTCOMA
+    {:
+        RESULT = new String[]{((String)name).toLowerCase(), (String)t};
+    :}
+    ;
+
+tipo ::= T_INT     {: RESULT = "int"; :}
+       | T_FLOAT   {: RESULT = "float"; :}
+       | T_BOOL    {: RESULT = "bool"; :}
+       | T_STRING  {: RESULT = "string"; :}
+       | T_ARRAY   {: RESULT = "array"; :}
+       | T_OBJECT  {: RESULT = "object"; :}
+       ;
+
+/* ---- read ---- */
+read_stmt ::= READ:r ID:name LLAVEIZQ campos_stmt:cs filter_stmt_opt:filtro LLAVEDER PTCOMA
+    {:
+        Object[] camposData = (Object[])cs;
+        List campos = (List)camposData[0];
+        boolean todos = (Boolean)camposData[1];
+        RESULT = new analizadores.instrucciones.Read(
+            (String)name, campos, todos,
+            (Expresion)filtro,
+            rleft, rright);
+    :}
+    ;
+
+campos_stmt ::= FIELDS DOSP ASTERISCO PTCOMA
+    {: RESULT = new Object[]{null, Boolean.TRUE}; :}
+    | FIELDS DOSP lista_campos_ids:lc PTCOMA
+    {: RESULT = new Object[]{lc, Boolean.FALSE}; :}
+    ;
+
+lista_campos_ids ::= campo_item:c
+    {:
+        List l = new ArrayList();
+        l.add((String)c);
+        RESULT = l;
+    :}
+    | lista_campos_ids:lc COMA campo_item:c
+    {:
+        lc.add((String)c);
+        RESULT = lc;
+    :}
+    ;
+
+campo_item ::= ID:name {: RESULT = (String)name; :}
+            ;
+
+filter_stmt_opt ::= filter_stmt:f  {: RESULT = f; :}
+                  | /* empty */    {: RESULT = null; :}
+                  ;
+
+filter_stmt ::= FILTER DOSP expr:e PTCOMA
+    {: RESULT = e; :}
+    ;
+
+/* ---- add ---- */
+add_stmt ::= ADD:a ID:name LLAVEIZQ pares_opt:p LLAVEDER PTCOMA
+    {:
+        RESULT = new analizadores.instrucciones.Add(
+            (String)name,
+            (LinkedHashMap)p,
+            aleft, aright);
+    :}
+    ;
+
+pares_opt ::= pares:p    {: RESULT = p; :}
+            | /* empty */ {: RESULT = new LinkedHashMap(); :}
+            ;
+
+pares ::= par:p
+    {:
+        LinkedHashMap m = new LinkedHashMap();
+        m.put(((Object[])p)[0], ((Object[])p)[1]);
+        RESULT = m;
+    :}
+    | pares:ps COMA par:p
+    {:
+        ps.put(((Object[])p)[0], ((Object[])p)[1]);
+        RESULT = ps;
+    :}
+    ;
+
+par ::= ID:name DOSP valor:v
+    {: RESULT = new Object[]{((String)name).toLowerCase(), v}; :}
+    ;
+
+/* ---- update ---- */
+update_stmt ::= UPDATE:u ID:name LLAVEIZQ set_stmt:ss filter_stmt_opt:f LLAVEDER PTCOMA
+    {:
+        RESULT = new analizadores.instrucciones.Update(
+            (String)name,
+            (LinkedHashMap)ss,
+            (Expresion)f,
+            uleft, uright);
+    :}
+    ;
+
+set_stmt ::= SET DOSP lista_asigs:la PTCOMA
+    {: RESULT = la; :}
+    ;
+
+lista_asigs ::= asig:a
+    {:
+        LinkedHashMap m = new LinkedHashMap();
+        m.put(((Object[])a)[0], ((Object[])a)[1]);
+        RESULT = m;
+    :}
+    | lista_asigs:la COMA asig:a
+    {:
+        la.put(((Object[])a)[0], ((Object[])a)[1]);
+        RESULT = la;
+    :}
+    ;
+
+asig ::= ID:name IGUAL valor:v
+    {: RESULT = new Object[]{((String)name).toLowerCase(), v}; :}
+    ;
+
+/* ---- clear ---- */
+clear_stmt ::= CLEAR:cl ID:name PTCOMA
+    {:
+        RESULT = new analizadores.instrucciones.Clear(
+            (String)name, clleft, clright);
+    :}
+    ;
+
+/* ---- export ---- */
+export_stmt ::= EXPORT:ex CADENA:path PTCOMA
+    {:
+        RESULT = new analizadores.instrucciones.Export(
+            (String)path, exleft, exright);
+    :}
+    ;
+
+/* ---- save ---- */
+save_stmt ::= SAVE:s CADENA:path PTCOMA
+    {:
+        RESULT = new analizadores.instrucciones.Save(
+            (String)path, sleft, sright);
+    :}
+    ;
+
+/* ================= VALORES ================= */
+
+valor ::= ENTERO:v    {: RESULT = v; :}
+        | DECIMAL:v   {: RESULT = v; :}
+        | CADENA:v    {: RESULT = v; :}
+        | BOOL:v      {: RESULT = v; :}
+        | NULL         {: RESULT = null; :}
+        | array_val:v  {: RESULT = v; :}
+        | object_val:v {: RESULT = v; :}
+        ;
+
+array_val ::= CORIZQ lista_valores_opt:lv CORDER
+    {: RESULT = lv; :}
+    ;
+
+lista_valores_opt ::= lista_valores:lv  {: RESULT = lv; :}
+                    | /* empty */       {: RESULT = new ArrayList(); :}
+                    ;
+
+lista_valores ::= valor:v
+    {:
+        List l = new ArrayList();
+        l.add(v);
+        RESULT = l;
+    :}
+    | lista_valores:lv COMA valor:v
+    {:
+        lv.add(v);
+        RESULT = lv;
+    :}
+    ;
+
+object_val ::= LLAVEIZQ lista_props_opt:lp LLAVEDER
+    {: RESULT = lp; :}
+    ;
+
+lista_props_opt ::= lista_props:lp  {: RESULT = lp; :}
+                  | /* empty */     {: RESULT = new LinkedHashMap(); :}
+                  ;
+
+lista_props ::= prop:p
+    {:
+        LinkedHashMap m = new LinkedHashMap();
+        m.put(((Object[])p)[0], ((Object[])p)[1]);
+        RESULT = m;
+    :}
+    | lista_props:lp COMA prop:p
+    {:
+        lp.put(((Object[])p)[0], ((Object[])p)[1]);
+        RESULT = lp;
+    :}
+    ;
+
+prop ::= ID:name DOSP valor:v
+    {: RESULT = new Object[]{(String)name, v}; :}
+    ;
+
+/* ================= EXPRESIONES ================= */
+
+expr ::= expr_or:e  {: RESULT = e; :}
+      ;
+
+expr_or ::= expr_or:l OR expr_and:r
+    {: RESULT = new analizadores.expresiones.ExprOr(l, r); :}
+    | expr_and:e
+    {: RESULT = e; :}
+    ;
+
+expr_and ::= expr_and:l AND expr_not:r
+    {: RESULT = new analizadores.expresiones.ExprAnd(l, r); :}
+    | expr_not:e
+    {: RESULT = e; :}
+    ;
+
+expr_not ::= NOT expr_not:e
+    {: RESULT = new analizadores.expresiones.ExprNot(e); :}
+    | expr_rel:e
+    {: RESULT = e; :}
+    ;
+
+expr_rel ::= prim:l relop:op prim:r
+    {: RESULT = new analizadores.expresiones.ExprRelacional(l, (String)op, r); :}
+    | PARIZQ expr:e PARDER
+    {: RESULT = e; :}
+    ;
+
+relop ::= IGUAL_IGUAL   {: RESULT = "=="; :}
+        | DIFERENTE     {: RESULT = "!="; :}
+        | MAYOR         {: RESULT = ">"; :}
+        | MENOR         {: RESULT = "<"; :}
+        | MAYOR_IGUAL   {: RESULT = ">="; :}
+        | MENOR_IGUAL   {: RESULT = "<="; :}
+        ;
+
+prim ::= ID:name
+    {: RESULT = new analizadores.expresiones.PrimId((String)name); :}
+    | ENTERO:v
+    {: RESULT = new analizadores.expresiones.PrimLiteral(v); :}
+    | DECIMAL:v
+    {: RESULT = new analizadores.expresiones.PrimLiteral(v); :}
+    | CADENA:v
+    {: RESULT = new analizadores.expresiones.PrimLiteral(v); :}
+    | BOOL:v
+    {: RESULT = new analizadores.expresiones.PrimLiteral(v); :}
+    | NULL
+    {: RESULT = new analizadores.expresiones.PrimLiteral(null); :}
+    | PARIZQ expr:e PARDER
+    {: RESULT = e; :}
+    ;

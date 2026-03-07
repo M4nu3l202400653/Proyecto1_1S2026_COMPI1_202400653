@@ -1,0 +1,32 @@
+ 
+[BUILD LOG] 
+[1/3] Generando Lexer con JFlex... 
+Reading "C:\Users\octav\Documents\ELI_NOSQL_Ant\src\analizadores\Lexico.jflex"
+Constructing NFA : 239 states in NFA
+Converting NFA to DFA : 
+............................................................................................................................................................................................................
+
+Warning in file "C:\Users\octav\Documents\ELI_NOSQL_Ant\src\analizadores\Lexico.jflex" (line 94): 
+Rule can never be matched:
+<COMMENT_MULTI> "#*"                { yybegin(YYINITIAL); }
+208 states before minimization, 188 states in minimized DFA
+Old file "C:\Users\octav\Documents\ELI_NOSQL_Ant\src\analizadores\Lexico.java" saved as "C:\Users\octav\Documents\ELI_NOSQL_Ant\src\analizadores\Lexico.java~"
+Writing code to "C:\Users\octav\Documents\ELI_NOSQL_Ant\src\analizadores\Lexico.java"
+JFlex OK 
+[2/3] Generando Parser con CUP... 
+------- CUP v0.11b 20160615 (GIT 4ac7450) Parser Generation Summary -------
+  0 errors and 0 warnings
+  47 terminals, 42 non-terminals, and 89 productions declared, 
+  producing 155 unique parse states.
+  0 terminals declared but not used.
+  0 non-terminals declared but not used.
+  0 productions never reduced.
+  0 conflicts detected (0 expected).
+  Code written to "Sintactico.java", and "sym.java".
+---------------------------------------------------- (CUP v0.11b 20160615 (GIT 4ac7450))
+CUP OK 
+[3/3] Compilando fuentes Java... 
+error: Invalid filename: C:\Users\octav\Documents\ELI_NOSQL_Ant\src\analizadores\*.java
+Usage: javac <options> <source files>
+use --help for a list of possible options
+ERROR: Compilacion fallo. Ver build_log.txt 
