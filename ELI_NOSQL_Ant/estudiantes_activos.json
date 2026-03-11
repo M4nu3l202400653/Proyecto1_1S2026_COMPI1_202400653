@@ -1,4 +1,0 @@
-[
-  {"id": 2, "nombre": "Ana", "edad": 19, "activo": true, "cursos": ["Redes", "SO1"], "perfil": {"nombre": "Ana", "edad": 19, "grado": "Universidad", "becado": true}},
-  {"id": 3, "nombre": "Luis Pérez", "edad": 22, "activo": true, "cursos": ["ETL", "DW", "OLAP"], "perfil": {"nombre": "Luis", "edad": 22, "grado": "Universidad", "becado": false}}
-]
