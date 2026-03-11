@@ -176,11 +176,11 @@ STRING      = \"{STRCHAR}*\"
 /* --------- Identificadores --------- */
 {ID}                                { return token(sym.ID, "id", yytext()); }
 
-/* --------- Cualquier otro carácter: ERROR LÉXICO --------- */
+/* --------- Cualquier otro carácter: ERROR LÉXICO (pero continuar parseando) --------- */
 .                                   {
                                         String d = "El carácter \"" + yytext() + "\" no pertenece al lenguaje";
                                         errorLexico(d);
-                                        // no retornamos token; seguimos escaneando
+                                        // no retornamos token; seguimos escaneando, permitiendo que el parser continúe
                                     }
 
 <<EOF>>                              { return new Symbol(sym.EOF); }

@@ -46,14 +46,12 @@ public class Analizar {
         erroresSintacticos  = new ArrayList<>(Sintactico.ERRORES);
         tokens              = new ArrayList<>(Lexico.TOKENS);
 
-        // ===== Interpretación (solo si no hay errores previos) =====
+        // ===== Interpretación (ejecutar aunque haya errores léxicos/sintácticos) =====
         salidaConsola    = "";
         erroresEjecucion = new ArrayList<>();
 
-        if (instrucciones != null
-                && erroresLexicos.isEmpty()
-                && erroresSintacticos.isEmpty()) {
-
+        if (instrucciones != null) {
+            // ejecutar incluso si hay errores previos, para permitir guardar JSON
             TablaSimbolos ts   = new TablaSimbolos();
             Arbol          arbol = new Arbol(instrucciones);
             arbol.ejecutar(ts);
@@ -62,7 +60,7 @@ public class Analizar {
             // almacenar tabla para uso posterior (GUI / guardado manual)
             ultimaTabla = ts;
         } else {
-            // en caso de errores también limpiamos la tabla previa
+            // en caso de que no haya instrucciones en absoluto
             ultimaTabla = null;
         }
     }

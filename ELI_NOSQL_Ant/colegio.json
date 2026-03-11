@@ -1,0 +1,14 @@
+{
+  "nombre": "colegio",
+  "ruta": "colegio.json",
+  "tablas": {
+    "estudiantes": {
+      "esquema": {"id": "int", "nombre": "string", "edad": "int", "activo": "bool", "cursos": "array", "perfil": "object"},
+      "registros": [
+        {"id": 1, "nombre": "Miguel", "edad": 14, "activo": true, "cursos": ["Compiladores", "Bases de Datos", "IA"], "perfil": {"nombre": "Miguel", "edad": 14, "grado": "Tercero", "becado": false}},
+        {"id": 2, "nombre": "Ana", "edad": 19, "activo": true, "cursos": ["Redes", "SO1"], "perfil": {"nombre": "Ana", "edad": 19, "grado": "Universidad", "becado": true}},
+        {"id": 3, "nombre": "Luis Pérez", "edad": 22, "activo": true, "cursos": ["ETL", "DW", "OLAP"], "perfil": {"nombre": "Luis", "edad": 22, "grado": "Universidad", "becado": false}}
+      ]
+    }
+  }
+}

@@ -151,7 +151,10 @@ public class Analizadores extends JFrame {
             consola.setText(salida);
         } else if (motor.tuvoErroresPrevios()) {
             consola.setText(
-                "Ejecución detenida: hay errores léxicos o sintácticos.\n");
+                "Ejecución intentada con errores presentés.\n" +
+                "Revisa la pestaña de Errores para más detalles.\n");
+        } else {
+            consola.setText("(Ejecución completada sin errores)\n");
         }
 
         // Actualizar títulos de pestañas con conteo

@@ -68,6 +68,7 @@ non terminal Instruccion  add_stmt;
 non terminal Instruccion  update_stmt;
 non terminal Instruccion  clear_stmt;
 non terminal Instruccion  export_stmt;
+non terminal Instruccion  save_stmt;
 
 non terminal String       store_stmt_opt;
 non terminal String       store_stmt;
@@ -127,17 +128,25 @@ lista_sent ::= lista_sent:ls sent:s
         if (s != null) ls.add(s);
         RESULT = ls;
     :}
+    /* Recuperación de error: saltar hasta ; */
     | lista_sent:ls error PTCOMA
     {:
         RESULT = ls;
     :}
+    /* Recuperación de error: saltar hasta } */
     | lista_sent:ls error LLAVEDER
+    {:
+        RESULT = ls;
+    :}
+    /* Recuperación de error: saltar token individual y continuar */
+    | lista_sent:ls error
     {:
         RESULT = ls;
     :}
     | /* empty */
     {: RESULT = new LinkedList(); :}
     ;
+
 
 sent ::= db_stmt:s      {: RESULT = s; :}
        | use_stmt:s     {: RESULT = s; :}
@@ -151,7 +160,13 @@ sent ::= db_stmt:s      {: RESULT = s; :}
        ;
 
 /* ---- database ---- */
-db_stmt ::= DATABASE:d ID:name LLAVEIZQ store_stmt_opt:ruta LLAVEDER
+db_stmt ::= DATABASE:d ID:name LLAVEIZQ store_stmt_opt:ruta LLAVEDER PTCOMA
+    {:
+        RESULT = new analizadores.instrucciones.Database(
+            (String)name, (String)ruta, dleft, dright);
+    :}
+    /* permitir sin punto y coma al final */
+    | DATABASE:d ID:name LLAVEIZQ store_stmt_opt:ruta LLAVEDER
     {:
         RESULT = new analizadores.instrucciones.Database(
             (String)name, (String)ruta, dleft, dright);
