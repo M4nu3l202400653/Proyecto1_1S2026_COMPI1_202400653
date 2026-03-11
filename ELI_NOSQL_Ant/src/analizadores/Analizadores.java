@@ -236,11 +236,15 @@ public class Analizadores extends JFrame {
     }
 
     private void guardarBaseDatosActiva() {
-        // save current database via JsonManager
+        // if we haven't parsed/executed the contents yet, do it now
+        if (motor.getTablaSimbolos() == null) {
+            ejecutar();  // this will populate token tables, errores, y tabla de símbolos
+        }
+
         analizadores.tablas.TablaSimbolos ts = motor.getTablaSimbolos();
         if (ts == null) {
             JOptionPane.showMessageDialog(this,
-                "No hay tabla de símbolos disponible.",
+                "Debe ejecutar el programa primero (no hay tabla de símbolos).",
                 "Guardar BD", JOptionPane.WARNING_MESSAGE);
             return;
         }

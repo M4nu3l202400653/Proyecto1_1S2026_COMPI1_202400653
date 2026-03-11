@@ -63,7 +63,7 @@ public class Add extends Instruccion {
         arbol.print("Registro insertado en '" + nombreTabla + "'.");
 
         // guardar automáticamente si la base de datos tiene una ruta definida
-        DatabaseMemory db = ts.getDbActiva();
+        // ya tenemos la variable db arriba
         if (db != null && db.getRutaArchivo() != null) {
             try {
                 JsonManager.guardar(db, db.getRutaArchivo());
